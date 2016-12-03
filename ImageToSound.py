@@ -49,7 +49,7 @@ def makemidifile(notelst, vollst, name):
     channel = 0
     time = 0
     duration = 1
-    tempo = 300
+    tempo = 360
     mymidi = MIDIFile(1, adjust_origin=False)
     mymidi.addTempo(track, time, tempo)
     for i in range(len(notelst)):
@@ -63,10 +63,18 @@ def getimagedata(filepath):
     im = Image.open(filepath)
     pix = im.load()
     rgblst = []
+    ydivs = int(im.size[1]/30)
+    #print("ydivs: ", ydivs)
+    xdivs = int(im.size[0]/30)
+    #print("xdivs: ", xdivs)
     for y in range(im.size[1]):
-        print(y/im.size[1])
-        for x in range(im.size[0]):
-            rgblst.append(pix[x,y])
+        #print(y%ydivs)
+        if y%ydivs == 0:
+            #print("Line")
+            for x in range(im.size[0]):
+                #print(x%xdivs)
+                if x%xdivs == 0:
+                    rgblst.append(pix[x,y])
     return(rgblst)
 
 def rgblsttohsllst(lst):
