@@ -1,5 +1,6 @@
 from PIL import Image
 from midiutil.MidiFile import MIDIFile
+import pygame
 
 def rgbtohsl(r,g,b):
     r1 = r/255
@@ -49,11 +50,13 @@ def makemidifile(notelst, vollst, name):
     channel = 0
     time = 0
     duration = 1
-    tempo = 360
+    print(notelst)
+    tempo = len(notelst)//2.5
+    print(tempo)
     mymidi = MIDIFile(1, adjust_origin=False)
     mymidi.addTempo(track, time, tempo)
     for i in range(len(notelst)):
-        print(i / len(notelst))
+        #print(i // len(notelst))
         mymidi.addNote(track, channel, notelst[i], time, duration, vollst[i])
         time += 1
     with open(name, "wb") as output_file:
@@ -64,9 +67,13 @@ def getimagedata(filepath):
     pix = im.load()
     rgblst = []
     ydivs = int(im.size[1]/30)
-    #print("ydivs: ", ydivs)
+    if ydivs == 0:
+        ydivs = 1
+    print("ydivs: ", ydivs)
     xdivs = int(im.size[0]/30)
-    #print("xdivs: ", xdivs)
+    if xdivs == 0:
+        xdivs = 1
+    print("xdivs: ", xdivs)
     for y in range(im.size[1]):
         #print(y%ydivs)
         if y%ydivs == 0:
@@ -87,13 +94,26 @@ def rgblsttohsllst(lst):
         hsl.append(rgbtohsl(item[0],item[1],item[2]))
     return hsl
 
-
+def main():
+    again = True
+    while again:
+        filename = input("Enter filepath for an image: ")
+        rgb = getimagedata(filename)
+        hsl = rgblsttohsllst(rgb)
+        nvlst = notevollst(hsl)
+        midname = filename.replace("jpg", "mid")
+        makemidifile(nvlst[0],nvlst[1],midname)
+        print("MIDI file created with name: ", midname)
+        hear = input("Would you like to hear your image right now?(Y/N)")
+        if hear == "Y" or hear == "y":
+            pygame.mixer.init()
+            pygame.mixer.music.load(midname)
+            pygame.mixer.music.play(1)
+        ask = input("Would you like to convert another image?(Y/N)")
+        if ask == "Y" or ask == "y":
+            again = True
+        else:
+            again = False
+            print("Goodbye!")
     
-a = getimagedata('cat.jpg')
-print("got")
-a = rgblsttohsllst(a)
-print("converted to hsl")
-b = notevollst(a)
-print("converted to notes/vol")
-makemidifile(b[0],b[1],'cat.mid')
-    
+main()
