@@ -1,6 +1,13 @@
-from PIL import Image
 from midiutil.MidiFile import MIDIFile
 import pygame
+from tkinter import *
+from PIL import Image
+
+global filename
+filename =""
+
+global midname
+midname = ""
 
 def rgbtohsl(r,g,b):
     r1 = r/255
@@ -50,9 +57,9 @@ def makemidifile(notelst, vollst, name):
     channel = 0
     time = 0
     duration = 1
-    print(notelst)
+    #print(notelst)
     tempo = len(notelst)//2.5
-    print(tempo)
+    #print(tempo)
     mymidi = MIDIFile(1, adjust_origin=False)
     mymidi.addTempo(track, time, tempo)
     for i in range(len(notelst)):
@@ -69,11 +76,11 @@ def getimagedata(filepath):
     ydivs = int(im.size[1]/30)
     if ydivs == 0:
         ydivs = 1
-    print("ydivs: ", ydivs)
+    #print("ydivs: ", ydivs)
     xdivs = int(im.size[0]/30)
     if xdivs == 0:
         xdivs = 1
-    print("xdivs: ", xdivs)
+    #print("xdivs: ", xdivs)
     for y in range(im.size[1]):
         #print(y%ydivs)
         if y%ydivs == 0:
@@ -115,5 +122,84 @@ def main():
         else:
             again = False
             print("Goodbye!")
+
+def gui():
+    class Window(Frame):
+        def __init__(self, master = None):
+            Frame.__init__(self, master)
+            self.master = master
+            self.init_window()
+            
+        def init_window(self):
+            self.master.title("Image to MIDI Converter")
+            self.pack(fill=BOTH, expand=1)
+            
+            openButton = Button(self, text="Open File", command=self.getfile)
+            openButton.place(x=0, y=0)
+            
+            text1 = Text(self, height=3, width=50, wrap=CHAR)
+            text1.insert(INSERT, "Input: " + filename)
+            text1.place(x=80, y=0)
+            
+            convertButton = Button(self, text="Convert File", command=self.convertfile)
+            convertButton.place(x=0, y=100)
+            
+            text2 = Text(self, height=3, width=50, wrap=CHAR)
+            text2.insert(INSERT, "Ouput: " + midname)
+            text2.place(x=80, y=100)
+            
+            text3 = Text(self, height=1, width=20)
+            text3.insert(INSERT, "Waiting...")
+            text3.place(x=0, y=230)
+
+        def getfile(self):
+            global filename
+            filename = filedialog.askopenfilename()
+            text = Text(self, height=3, width=50,wrap=CHAR)
+            text.insert(INSERT,"Input: " + filename)
+            text.place(x=80, y=0)
+
+        def convertfile(self):
+            global midname
+            global filename
+            text3 = Text(self, height=1, width=20)
+            text3.insert(INSERT, "Converting...")
+            text3.place(x=0, y=230)
+            rgb = getimagedata(filename)
+            hsl = rgblsttohsllst(rgb)
+            nvlst = notevollst(hsl)
+            midname = filename.replace("jpg", "mid")
+            makemidifile(nvlst[0],nvlst[1],midname)
+            text3 = Text(self, height=1, width=20)
+            text3.insert(INSERT, "Done!")
+            text3.place(x=0, y=230)
+            text = Text(self, height=3, width=50, wrap=CHAR)
+            text.insert(INSERT,"Output: " + midname)
+            text.place(x=80, y=100)
+
+            playButton = Button(self, text="Play", command=self.playfile)
+            playButton.place(x=50, y=255)
+            stopButton = Button(self, text="Stop", command = self.stopfile)
+            stopButton.place(x=88, y=255)
+
+        def playfile(self):
+            global midname
+            pygame.mixer.init()
+            pygame.mixer.music.load(midname)
+            pygame.mixer.music.play(1)
+
+        def stopfile(self):
+            pygame.mixer.music.stop()
+
+            
+    root = Tk()
+    root.geometry("500x400")
+    app = Window(root)
+    root.mainloop()
+        
+
+
+if __name__ == "__main__":    
+    #main()
+    gui()
     
-main()
