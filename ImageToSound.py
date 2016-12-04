@@ -1,6 +1,7 @@
 from midiutil.MidiFile import MIDIFile
 import pygame
 from tkinter import *
+from tkinter import filedialog
 from PIL import Image
 
 global filename
@@ -182,6 +183,7 @@ def gui():
             stopButton = Button(self, text="Stop", command = self.stopfile)
             stopButton.place(x=88, y=255)
 
+
         def playfile(self):
             global midname
             pygame.mixer.init()
@@ -191,10 +193,12 @@ def gui():
         def stopfile(self):
             pygame.mixer.music.stop()
 
+
             
     root = Tk()
     root.geometry("500x400")
     app = Window(root)
+    app.master.iconbitmap('icon.ico')
     root.mainloop()
         
 
