@@ -109,7 +109,7 @@ def main():
         rgb = getimagedata(filename)
         hsl = rgblsttohsllst(rgb)
         nvlst = notevollst(hsl)
-        midname = filename.replace("jpg", "mid")
+        midname = filename +" .mid"
         makemidifile(nvlst[0],nvlst[1],midname)
         print("MIDI file created with name: ", midname)
         hear = input("Would you like to hear your image right now?(Y/N)")
@@ -169,7 +169,7 @@ def gui():
             rgb = getimagedata(filename)
             hsl = rgblsttohsllst(rgb)
             nvlst = notevollst(hsl)
-            midname = filename.replace("jpg", "mid")
+            midname = filename +  ".mid"
             makemidifile(nvlst[0],nvlst[1],midname)
             text3 = Text(self, height=1, width=20)
             text3.insert(INSERT, "Done!")
@@ -206,4 +206,4 @@ def gui():
 if __name__ == "__main__":    
     #main()
     gui()
-    
+   
